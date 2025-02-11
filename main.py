@@ -42,7 +42,7 @@ if __name__ == "__main__":
     input = sys.argv[1]
     if not calc(input)[0]:
         raise Exception("Input invalido")
-    print(calc(input))
+    print(calc(input[1]))
     
             
 

@@ -1,0 +1,18 @@
+Σ (alfabeto) -> Σ* (todas as cadeias) -filtro-> L (todas as cadeias validas)
+					  |
+					  L Gramatica 
+
+{n, n+n, n-n, n+n+n, n+n-n, ...}
+
+L_comp = {n(+n | -n)^i | i>= 0}  => G = (V, Σ, P, S)
+
+				    P = { E -> nT,
+					  T -> +nT,
+                                          T -> -nT,
+					  T -> lambda}
+
+
+[Codigo fonte] -> [PrePro] -> [Parser] -> [Tokenizer] -> [Semantica] -> [Geracao de codigo]
+
+
+

@@ -2,49 +2,56 @@ from Tokenizer import Tokenizer
 from constants import SEQUENCE
 
 
-class Parser():
+class Parser:
     tokenizer: Tokenizer
 
     def parseTerm(self):
         last_token = self.tokenizer.next
-
         self.tokenizer.selectNext()
-        if self.tokenizer.next.type not in SEQUENCE[last_token.type]:
-            raise Exception
-        
+
+        if self.tokenizer.next.type not in SEQUENCE.get(last_token.type, []):
+            raise Exception("Unexpected token sequence")
+
         if self.tokenizer.next.type == "operator":
             if self.tokenizer.next.value in ["*", "/"]:
-                if self.tokenizer.next.value == "*":
-                    return int(int(last_token.value) * self.parseTerm())
-                else:
-                    return int(int(last_token.value) / self.parseTerm())
-            else:
-                return int(last_token.value)
-        
+                op = self.tokenizer.next.value
+                self.tokenizer.selectNext()
+                right = self.parseTerm()
+
+                if op == "*":
+                    return int(int(last_token.value) * right)
+                elif op == "/":
+                    if right == 0:
+                        raise ZeroDivisionError("Division by zero")
+                    return int(int(last_token.value) / right)
+
         if self.tokenizer.next.type == "eof":
             return int(last_token.value)
 
-        return self.parseTerm()
+        return int(last_token.value)
 
     def parseExpression(self):
-        last_token = self.tokenizer.next
-        if last_token.type == "eof":
-            return 0
-        
         value = self.parseTerm()
 
-        if last_token.type in ["", "operator"]:
-            if last_token.value in ["", "+"]:
-                return value + self.parseExpression()
-            elif last_token.value == "-":
-                return value - self.parseExpression()
+        while self.tokenizer.next.type == "operator" and self.tokenizer.next.value in ["+", "-"]:
+            op = self.tokenizer.next.value
+            self.tokenizer.selectNext()
+            right = self.parseTerm()
 
-        if self.tokenizer.next.type == "eof":
-            return value
+            if op == "+":
+                value += right
+            elif op == "-":
+                value -= right
+
+        return value
 
     def run(self, code):
         self.tokenizer = Tokenizer(code)
-        return self.parseExpression()
-    
-# teste = Parser()
-# print(teste.run("1+6/2"))
+        self.tokenizer.selectNext()
+        result = self.parseExpression()
+
+        if self.tokenizer.next.type != "eof":
+            raise Exception("Unexpected end of input")
+
+        return result
+

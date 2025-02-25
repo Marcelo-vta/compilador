@@ -1,5 +1,5 @@
 numbers = [str(n) for n in range(10)]
-VOCABULARY = [" ","\n","+","-"] + numbers
+VOCABULARY = [" ","\n","+","-","*","/"] + numbers
 
 SEQUENCE = {
     "number": ["operator", "eof"],

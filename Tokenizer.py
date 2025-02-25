@@ -42,7 +42,7 @@ class Tokenizer():
                 self.next = newToken
                 return
             
-        if c_char in ["+", "-"]:
+        if c_char in ["+", "-", "*", "/"]:
             newToken.type = "operator"
             newToken.value = c_char
             self.next = newToken

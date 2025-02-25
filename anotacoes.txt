@@ -15,4 +15,19 @@ L_comp = {n(+n | -n)^i | i>= 0}  => G = (V, Σ, P, S)
 [Codigo fonte] -> [PrePro] -> [Parser] -> [Tokenizer] -> [Semantica] -> [Geracao de codigo]
 
 
+EBNF:
+
+EXPRESSION = NUMBER, {("+" | "-"), NUMBER}
+NUMBER = DIGIT, {DIGIT}
+DIGIT = ("0" | "1" | "2" | ... "9")
+
+Multiplicacao e divisao:
+
+EXPRESSION = TERM, {("+" | "-"), TERM}
+TERM = NUMBER, {("*" | "/"), NUMBER}
+NUMBER = DIGIT, {DIGIT}
+DIGIT = ("0" | "1" | "2" | ... "9")
+
+
+
 

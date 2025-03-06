@@ -49,6 +49,20 @@ class Tokenizer():
             self.position += 1
             return
         
+        if c_char == "(":
+            newToken.type = "openPrio"
+            newToken.value = c_char
+            self.next = newToken
+            self.position += 1
+            return
+        
+        if c_char == ")":
+            newToken.type = "closePrio"
+            newToken.value = c_char
+            self.next = newToken
+            self.position += 1
+            return
+        
         self.position += 1        
         self.selectNext()
 

@@ -6,9 +6,28 @@ class Parser:
     tokenizer: Tokenizer
 
     def parseFactor(self):
-        last_token = self.tokenizer.next
+        token = self.tokenizer.next
         self.tokenizer.selectNext()
-        return int(last_token.value)
+
+        right = None
+
+        if token.value == "+":
+            right = self.parseFactor()
+        if token.value == "-":
+            right = -self.parseFactor()
+
+        if token.value == "(":
+            right = self.parseExpression()
+            if self.tokenizer.next.value != ")":
+                raise Exception("Unclosed parenthesis")
+            else:
+                self.tokenizer.selectNext()
+
+        if right == None:
+            return int(token.value)
+        return int(right)
+
+
 
     def parseTerm(self):
         value = self.parseFactor()
@@ -23,7 +42,7 @@ class Parser:
             elif op == "/":
                 if right == 0:
                     raise ZeroDivisionError("Division by zero")
-                value //= right
+                value = int(value/right)
 
         return value
 

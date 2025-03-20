@@ -65,6 +65,56 @@ class Tokenizer():
             self.position += 1
             return
         
+        if c_char == "{":
+            newToken.type = "openBlock"
+            newToken.value = c_char
+            self.next = newToken
+            self.position += 1
+            return
+        
+        if c_char == "}":
+            newToken.type = "closeBlock"
+            newToken.value = c_char
+            self.next = newToken
+            self.position += 1
+            return
+        
+
+        if c_char.isalpha() or c_char == "_":
+            newToken.type = "identifier"
+            newToken.value = ""
+            while c_char.isalnum() or c_char == "_":
+                newToken.value += c_char
+                self.position += 1
+                if self.position >= len(self.source):
+                    self.next = newToken
+                    return
+                c_char = self.source[self.position]
+                if not (c_char.isalnum() or c_char == '_'):
+                    if newToken.value == "print":
+                        newToken.type = "print"
+                    self.next = newToken
+                    return
+            
+        if c_char == "=":
+            newToken.type = "equals"
+            newToken.value = c_char
+            self.next = newToken
+            self.position += 1
+            return
+        
+        if c_char == ";":
+            newToken.type = "endStatement"
+            newToken.value = c_char
+            self.next = newToken
+            self.position += 1
+            return
+        
         self.position += 1        
         self.selectNext()
 
+
+# tkn = Tokenizer("teste 3 + 2 testando1 print {};")
+# for i in range(20):
+#     print(tkn.next.type)
+#     tkn.selectNext()

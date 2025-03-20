@@ -1,5 +1,10 @@
+import re
+
 numbers = [str(n) for n in range(10)]
-VOCABULARY = [" ","\n","+","-","*","/","(",")"] + numbers
+alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+ALPHAS = [alpha for alpha in (alphabet + alphabet.lower())];
+
+VOCABULARY = [" ","\n","+","-","*","/","(",")", "{", "}","=","_",";"] + numbers + ALPHAS
 
 SEQUENCE = {
     "number": ["operator", "eof"],

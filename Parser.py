@@ -1,5 +1,6 @@
 from Tokenizer import Tokenizer
 from constants import SEQUENCE
+from Node import *
 
 
 class Parser:
@@ -9,64 +10,64 @@ class Parser:
         token = self.tokenizer.next
         self.tokenizer.selectNext()
 
-        right = None
-
+        node = None
+        
         if token.value == "+":
-            right = self.parseFactor()
+            node = UnOp([self.parseFactor()], "+")
         if token.value == "-":
-            right = -self.parseFactor()
+            node = UnOp([self.parseFactor()], "-")
 
         if token.value == "(":
-            right = self.parseExpression()
+            node = Node([self.parseExpression()], None)
             if self.tokenizer.next.value != ")":
                 raise Exception("Unclosed parenthesis")
             else:
                 self.tokenizer.selectNext()
 
-        if right == None:
-            return int(token.value)
-        return int(right)
+        if node == None:
+            return IntVal(int(token.value))
+        return node
 
 
 
     def parseTerm(self):
-        value = self.parseFactor()
+        node = self.parseFactor()
 
-        while self.tokenizer.next.type == "operator" and self.tokenizer.next.value in ["*", "/"]:
+        if self.tokenizer.next.type == "operator" and self.tokenizer.next.value in ["*", "/"]:
             op = self.tokenizer.next.value
             self.tokenizer.selectNext()
-            right = self.parseFactor()
+            right = self.parseExpression()
 
             if op == "*":
-                value *= right
+                node = BinOp([node, right], "*")
             elif op == "/":
-                if right == 0:
+                if right.value == 0:
                     raise ZeroDivisionError("Division by zero")
-                value = int(value/right)
+                node = BinOp([node, right], "/")
 
-        return value
+        return node
 
     def parseExpression(self):
-        value = self.parseTerm()
+        node = self.parseTerm()
 
-        while self.tokenizer.next.type == "operator" and self.tokenizer.next.value in ["+", "-"]:
+        if self.tokenizer.next.type == "operator" and self.tokenizer.next.value in ["+", "-"]:
             op = self.tokenizer.next.value
             self.tokenizer.selectNext()
-            right = self.parseTerm()
+            right = self.parseExpression()
 
             if op == "+":
-                value += right
+                node = BinOp([node, right], "+")
             elif op == "-":
-                value -= right
+                node = BinOp([node, right], "-")
 
-        return value
+        return node
 
     def run(self, code):
         self.tokenizer = Tokenizer(code)
         self.tokenizer.selectNext()
-        result = self.parseExpression()
+        mainNode = Node([self.parseExpression()],None)
 
         if self.tokenizer.next.type != "eof":
             raise Exception("Unexpected end of input")
 
-        return result
+        return mainNode

@@ -6,7 +6,3 @@ class Token():
     def __init__(self):
         self.type = ""
         self.value = ""
-
-
-teste = Token()
-print()

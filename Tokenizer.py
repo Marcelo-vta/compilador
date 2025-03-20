@@ -1,5 +1,6 @@
 from Token import Token
 from constants import VOCABULARY
+from PrePro import PrePro
 
 class Tokenizer():
     source: str
@@ -7,7 +8,8 @@ class Tokenizer():
     next: Token
 
     def __init__(self, source):
-        self.source = source
+        prePro = PrePro()
+        self.source = prePro.filter(source)
         self.position = 0
         self.next = Token()
 

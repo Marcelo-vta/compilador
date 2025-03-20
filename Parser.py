@@ -1,6 +1,7 @@
 from Tokenizer import Tokenizer
 from constants import SEQUENCE
 from Node import *
+from utils import print_tree
 
 
 class Parser:
@@ -28,15 +29,13 @@ class Parser:
             return IntVal(int(token.value))
         return node
 
-
-
     def parseTerm(self):
         node = self.parseFactor()
 
-        if self.tokenizer.next.type == "operator" and self.tokenizer.next.value in ["*", "/"]:
+        while self.tokenizer.next.type == "operator" and self.tokenizer.next.value in ["*", "/"]:
             op = self.tokenizer.next.value
             self.tokenizer.selectNext()
-            right = self.parseExpression()
+            right = self.parseFactor()
 
             if op == "*":
                 node = BinOp([node, right], "*")
@@ -50,10 +49,10 @@ class Parser:
     def parseExpression(self):
         node = self.parseTerm()
 
-        if self.tokenizer.next.type == "operator" and self.tokenizer.next.value in ["+", "-"]:
+        while self.tokenizer.next.type == "operator" and self.tokenizer.next.value in ["+", "-"]:
             op = self.tokenizer.next.value
             self.tokenizer.selectNext()
-            right = self.parseExpression()
+            right = self.parseTerm()
 
             if op == "+":
                 node = BinOp([node, right], "+")

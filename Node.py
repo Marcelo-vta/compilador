@@ -37,7 +37,7 @@ class BinOp(Node):
             case "*":
                 return self.children[0] * self.children[1]
             case "/":
-                return self.children[0] / self.children[1]
+                return self.children[0] // self.children[1]
             case _:
                 raise ValueError("Invalid BinOp value")
 

@@ -49,13 +49,11 @@ class UnOp(Node):
     
     def Evaluate(self):
         super().Evaluate()
-        match self.value:
-            case "-":
-                return -(self.children[0])
-            case "+":
-                return self.children[0]
-            case _:
-                raise ValueError("Invalid UnOp value")
+        if self.value == "-":
+            return -(self.children[0])
+        if self.value == "+":
+            return self.children[0]
+        raise ValueError("Invalid UnOp value")
             
 class IntVal(Node):
     def __init__(self, value):

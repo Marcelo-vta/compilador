@@ -29,17 +29,15 @@ class BinOp(Node):
         
     def Evaluate(self):
         super().Evaluate()
-        match self.value:
-            case "-":
-                return self.children[0] - self.children[1]
-            case "+":
-                return self.children[0] + self.children[1]
-            case "*":
-                return self.children[0] * self.children[1]
-            case "/":
-                return self.children[0] // self.children[1]
-            case _:
-                raise ValueError("Invalid BinOp value")
+        if self.value == "-":
+            return self.children[0] - self.children[1]
+        if self.value == "+":
+            return self.children[0] + self.children[1]
+        if self.value == "*":
+            return self.children[0] * self.children[1]
+        if self.value == "/":
+            return self.children[0] // self.children[1]
+        raise ValueError("Invalid BinOp value")
 
 class UnOp(Node):
     def __init__(self, children, value):

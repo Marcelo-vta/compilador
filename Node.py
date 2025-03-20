@@ -1,8 +1,6 @@
 
 
 class Node():
-    children:list['Node']
-
     def __init__(self, children, value):
         self.children = children
         self.value = value

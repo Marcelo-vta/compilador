@@ -5,7 +5,7 @@ from SymbolTable import SymbolTable
 
 if __name__ == "__main__":
     # input = sys.argv[1]
-    # input = "{x1 = 3; y2 = 4; z_final = x1 + y2; print(z_final);}"
+    # input = "{i = 0; while(i<=3){print(i); i = i + 1;};}"
 
     filename = sys.argv[1]
 
@@ -18,7 +18,6 @@ if __name__ == "__main__":
         print(f"Erro ao abrir o arquivo: {e}")
 
     parser = Parser()
-    symbolTable = SymbolTable()
 
-    parser.run(input, symbolTable)
+    parser.run(input)
 

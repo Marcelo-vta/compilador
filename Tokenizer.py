@@ -93,6 +93,14 @@ class Tokenizer():
                 if not (c_char.isalnum() or c_char == '_'):
                     if newToken.value == "print":
                         newToken.type = "print"
+                    if newToken.value == "if":
+                        newToken.type = "if"
+                    if newToken.value == "while":
+                        newToken.type = "while"
+                    if newToken.value == "var":
+                        newToken.type = "setVar"
+                    if newToken.value == "read":
+                        newToken.type = "read"
                     self.next = newToken
                     return
             
@@ -101,6 +109,12 @@ class Tokenizer():
             newToken.value = c_char
             self.next = newToken
             self.position += 1
+            if self.source[self.position] == "=":
+                newToken.type = "equalsTo"
+                newToken.value = c_char
+                self.next = newToken
+                self.position += 1
+                return
             return
         
         if c_char == ";":
@@ -110,11 +124,55 @@ class Tokenizer():
             self.position += 1
             return
         
+        if c_char == "<":
+            newToken.type = "lessThan"
+            newToken.value = c_char
+            self.next = newToken
+            self.position += 1
+            if self.source[self.position] == "=":
+                newToken.type = "lessOrEqualsTo"
+                newToken.value += "="
+                self.next = newToken
+                self.position += 1
+                return
+            return
+        
+        if c_char == ">":
+            newToken.type = "greaterThan"
+            newToken.value = c_char
+            self.next = newToken
+            self.position += 1
+            if self.source[self.position] == "=":
+                newToken.type = "greaterOrEqualsTo"
+                newToken.value += "="
+                self.next = newToken
+                self.position += 1
+                return
+            return
+        
+        if c_char == "&":
+            if self.source[self.position+1] == "&":
+                newToken.type = "and"
+                newToken.value = "&&"
+                self.next = newToken
+                self.position += 2
+                return
+        
+        if c_char == "|":
+            if self.source[self.position+1] == "|":
+                newToken.type = "or"
+                newToken.value = "||"
+                self.next = newToken
+                self.position += 2
+                return
+        
+
+        
         self.position += 1        
         self.selectNext()
 
 
-# tkn = Tokenizer("teste 3 + 2 testando1 print {};")
+# tkn = Tokenizer("read()")
 # for i in range(20):
 #     print(tkn.next.type)
 #     tkn.selectNext()

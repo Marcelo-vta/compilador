@@ -27,7 +27,7 @@ class Parser:
             else:
                 self.tokenizer.selectNext()
 
-        if token.value == "read":
+        if token.value == "reader":
             if self.tokenizer.next.value == "(":
                 node = Input()
                 self.tokenizer.selectNext()

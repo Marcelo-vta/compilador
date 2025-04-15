@@ -99,7 +99,7 @@ class Tokenizer():
                         newToken.type = "while"
                     if newToken.value == "var":
                         newToken.type = "setVar"
-                    if newToken.value == "read":
+                    if newToken.value == "reader":
                         newToken.type = "read"
                     self.next = newToken
                     return

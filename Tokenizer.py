@@ -51,6 +51,13 @@ class Tokenizer():
             self.position += 1
             return
         
+        if c_char == "!":
+            newToken.type = "not"
+            newToken.value = c_char
+            self.next = newToken
+            self.position += 1
+            return
+ 
         if c_char == "(":
             newToken.type = "openPrio"
             newToken.value = c_char
@@ -111,7 +118,7 @@ class Tokenizer():
             self.position += 1
             if self.source[self.position] == "=":
                 newToken.type = "equalsTo"
-                newToken.value = c_char
+                newToken.value += c_char
                 self.next = newToken
                 self.position += 1
                 return

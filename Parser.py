@@ -15,13 +15,11 @@ class Parser:
 
         node = None
         
-        if token.value == "+":
-            node = UnOp([self.parseFactor()], token)
-        if token.value == "-":
+        if token.value in "+-!":
             node = UnOp([self.parseFactor()], token)
 
         if token.value == "(":
-            node = Node([self.parseExpression()], None)
+            node = Node([self.parseBoolExp()], None)
             if self.tokenizer.next.value != ")":
                 raise Exception("Unclosed parenthesis")
             else:
@@ -82,7 +80,7 @@ class Parser:
     def parseRelExp(self):
         node = self.parseExpression()
 
-        while self.tokenizer.next.type in ["equals", "greaterThan", "lessThan", "greaterOrEqualsTo", "lessOrEqualsTo"]:
+        while self.tokenizer.next.type in ["equalsTo", "greaterThan", "lessThan", "greaterOrEqualsTo", "lessOrEqualsTo"]:
             op = self.tokenizer.next
             self.tokenizer.selectNext()
             right = self.parseExpression()
@@ -119,6 +117,7 @@ class Parser:
 
         token = self.tokenizer.next
         node = Node([], None)
+        statementEnd = False
 
         if token.type == "identifier":
             self.tokenizer.selectNext()
@@ -169,6 +168,9 @@ class Parser:
             else:
                 node = Conditional([condition, onConditionTrue])
 
+            statementEnd = True
+
+
         
         if token.type == "while":
             self.tokenizer.selectNext()
@@ -187,10 +189,13 @@ class Parser:
 
             node = WhileLoop([condition, content])
 
-        if self.tokenizer.next.type != "endStatement":
+            statementEnd = True
+
+        if self.tokenizer.next.type != "endStatement" and not statementEnd:
             raise SyntaxError("Unclosed statement")
         
-        self.tokenizer.selectNext()
+        if token.type not in ['if', 'while']:
+            self.tokenizer.selectNext()
         return node
 
     def parseBlock(self):
@@ -201,14 +206,15 @@ class Parser:
             raise SyntaxError('Start block with "{"')
         
         self.tokenizer.selectNext()
+
         while self.tokenizer.next.type != "closeBlock":
             if self.tokenizer.next.value == "eof":
                 raise SyntaxError("Unclosed block")
-            statements.append(self.parseStatement())    
+            statements.append(self.parseStatement())   
+
         self.tokenizer.selectNext()
 
         return Block(statements)
-
 
     def run(self, code):
         self.tokenizer = Tokenizer(code)

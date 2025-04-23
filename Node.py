@@ -67,6 +67,8 @@ class UnOp(Node):
             return -(self.children[0])
         if self.value.value == "+":
             return self.children[0]
+        if self.value.value == "!":
+            return not self.children[0]
         if self.value.value == "=":
             return self
         raise ValueError("Invalid UnOp value")

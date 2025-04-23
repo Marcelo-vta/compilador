@@ -11,23 +11,24 @@ class Parser:
 
     def parseFactor(self):
         token = self.tokenizer.next
-        self.tokenizer.selectNext()
-
         node = None
         
         if token.value in "+-!":
-            node = UnOp([self.parseFactor()], token)
+            self.tokenizer.selectNext()
+            node = UnOp([self.parseFactor()], token.value)
 
-        if token.value == "(":
-            node = Node([self.parseBoolExp()], None)
+        elif token.value == "(":
+            self.tokenizer.selectNext()
+            node = self.parseBoolExp()
             if self.tokenizer.next.value != ")":
                 raise Exception("Unclosed parenthesis")
             else:
                 self.tokenizer.selectNext()
 
-        if token.value == "reader":
+        elif token.value == "reader":
+            self.tokenizer.selectNext()
             if self.tokenizer.next.value == "(":
-                node = Input()
+                node = Input([], None)
                 self.tokenizer.selectNext()
             else:
                 raise Exception("unexpected use of input")
@@ -36,12 +37,16 @@ class Parser:
                 self.tokenizer.selectNext()
             else:
                 raise Exception("Unclosed parenthesis")
+            
+        elif token.type == "identifier":
+            self.tokenizer.selectNext()
+            node = Identifier([], token.value)
 
-        if node == None:
-            if token.value.isnumeric():
-                token.value = int(token.value) # arrumar isso dps, colocar int no Node.Evaluate()
-
-            return IntVal(token)
+        elif token.type == "number":
+            self.tokenizer.selectNext()
+            node = IntVal([], token.value)
+        else:
+            raise Exception("Unexpected Token")
         
         return node
 
@@ -54,12 +59,9 @@ class Parser:
             right = self.parseFactor()
 
             if op.value == "*":
-                node = BinOp([node, right], op)
+                node = BinOp([node, right], op.value)
             elif op.value == "/":
-                if right.value == 0:
-                    raise ZeroDivisionError("Division by zero")
-                node = BinOp([node, right], op)
-
+                node = BinOp([node, right], op.value)
         return node
 
     def parseExpression(self):
@@ -71,9 +73,9 @@ class Parser:
             right = self.parseTerm()
 
             if op.value == "+":
-                node = BinOp([node, right], op)
+                node = BinOp([node, right], op.value)
             elif op.value == "-":
-                node = BinOp([node, right], op)
+                node = BinOp([node, right], op.value)
 
         return node
     
@@ -85,7 +87,7 @@ class Parser:
             self.tokenizer.selectNext()
             right = self.parseExpression()
 
-            node = BinOp([node, right], op)
+            node = BinOp([node, right], op.value)
 
         return node
 
@@ -97,7 +99,7 @@ class Parser:
             self.tokenizer.selectNext()
             right = self.parseRelExp()
 
-            node = BinOp([node, right], op)
+            node = BinOp([node, right], op.value)
 
         return node
     
@@ -109,7 +111,7 @@ class Parser:
             self.tokenizer.selectNext()
             right = self.parseBoolTerm()
 
-            node = BinOp([node, right], op)
+            node = BinOp([node, right], op.value)
 
         return node
 
@@ -121,21 +123,22 @@ class Parser:
 
         if token.type == "identifier":
             self.tokenizer.selectNext()
+            id = Identifier([], token.value)
+
             if self.tokenizer.next.type == "equals":
                 self.tokenizer.selectNext()
-                node = Assignment([self.parseBoolExp()], token)
+                node = Assignment([id, self.parseBoolExp()], None)
             else:
                 raise SyntaxError("Set identifier like IDENTIFIER = VALUE")
             
-
-        if token.type == "print":
+        elif token.type == "print":
             self.tokenizer.selectNext()
 
             if self.tokenizer.next.type != "openPrio":
                 raise SyntaxError("Unproper use of print, proper: print(<expression>)")
             self.tokenizer.selectNext()
 
-            node = Print([self.parseBoolExp()])
+            node = Print([self.parseBoolExp()], None)
 
             if self.tokenizer.next.type != "closePrio":
                 raise SyntaxError("Unproper use of print, proper: print(<expression>)")
@@ -143,7 +146,7 @@ class Parser:
             self.tokenizer.selectNext()
 
 
-        if token.type == "if":
+        elif token.type == "if":
             self.tokenizer.selectNext()
 
             if self.tokenizer.next.type != "openPrio":
@@ -161,18 +164,17 @@ class Parser:
             conditionFalse = False
             if self.tokenizer.next.type == "else":
                 conditionFalse = True
+                self.tokenizer.selectNext()
                 onConditionFalse = self.parseBlock()
             
             if conditionFalse:
-                node = Conditional([condition, onConditionTrue, onConditionFalse])
+                node = Conditional([condition, onConditionTrue, onConditionFalse], None)
             else:
-                node = Conditional([condition, onConditionTrue])
+                node = Conditional([condition, onConditionTrue], None)
 
             statementEnd = True
 
-
-        
-        if token.type == "while":
+        elif token.type == "while":
             self.tokenizer.selectNext()
 
             if self.tokenizer.next.type != "openPrio":
@@ -187,15 +189,25 @@ class Parser:
 
             content = self.parseBlock()
 
-            node = WhileLoop([condition, content])
+            node = WhileLoop([condition, content], None)
 
             statementEnd = True
 
-        if self.tokenizer.next.type != "endStatement" and not statementEnd:
-            raise SyntaxError("Unclosed statement")
+        elif token.type == "endStatement":
+            pass
         
-        if token.type not in ['if', 'while']:
-            self.tokenizer.selectNext()
+        else:
+            print(self.tokenizer.next.type)
+            print(self.tokenizer.position)
+            raise Exception("Invalid Token")
+        
+        if not statementEnd:
+            if self.tokenizer.next.type != "endStatement":
+                raise SyntaxError("Unclosed statement")
+            else:
+                self.tokenizer.selectNext()
+
+
         return node
 
     def parseBlock(self):
@@ -208,24 +220,20 @@ class Parser:
         self.tokenizer.selectNext()
 
         while self.tokenizer.next.type != "closeBlock":
-            if self.tokenizer.next.value == "eof":
-                raise SyntaxError("Unclosed block")
             statements.append(self.parseStatement())   
 
         self.tokenizer.selectNext()
 
-        return Block(statements)
+        return Block(statements, None)
 
     def run(self, code):
         self.tokenizer = Tokenizer(code)
         self.tokenizer.selectNext()
 
-        symbolTable = SymbolTable()
-
         mainBlock = self.parseBlock()
-        mainBlock.Evaluate(symbolTable)
+        
 
         if self.tokenizer.next.type != "eof":
             raise Exception("Unexpected end of input")
 
-        return
+        return mainBlock

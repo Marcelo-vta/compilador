@@ -2,7 +2,7 @@ class SymbolTable():
     symbols = {}
 
     def setSymbol(self, key, value):
-        self.symbols[key.value] = value
+        self.symbols[key] = value
         return
     
     def printTable(self):

@@ -102,6 +102,8 @@ class Tokenizer():
                         newToken.type = "print"
                     if newToken.value == "if":
                         newToken.type = "if"
+                    if newToken.value == "else":
+                        newToken.type = "else"
                     if newToken.value == "while":
                         newToken.type = "while"
                     if newToken.value == "var":

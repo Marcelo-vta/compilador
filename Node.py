@@ -7,133 +7,84 @@ class Node():
         return
     
     def Evaluate(self, symbolTable):
-        for i in range(len(self.children)):
-            self.children[i] = self.children[i].Evaluate(symbolTable)
+        pass
 
         
 class Block(Node):
-    def __init__(self, children):
-        super().__init__(children, None)
-
     def Evaluate(self, symbolTable):
-        super().Evaluate(symbolTable)
-        return
+        for child in self.children:
+            child.Evaluate(symbolTable)
     
 class BinOp(Node):
-    def __init__(self, children, value):
-        super().__init__(children, value)
-
-        if len(children) != 2:
-            raise ValueError("BinOp should contain two children")
-        return
         
     def Evaluate(self, symbolTable):
-        super().Evaluate(symbolTable)
-        if self.value.value == "-":
-            return self.children[0] - self.children[1]
-        if self.value.value == "+":
-            return self.children[0] + self.children[1]
-        if self.value.value == "*":
-            return self.children[0] * self.children[1]
-        if self.value.value == "/":
-            return self.children[0] // self.children[1]
-        if self.value.value == "||":
-            return int(self.children[0] or self.children[1])
-        if self.value.value == "&&":
-            return int(self.children[0] and self.children[1])
-        if self.value.value == "==":
-            return int(self.children[0] == self.children[1])
-        if self.value.value == ">=":
-            return int(self.children[0] >= self.children[1])
-        if self.value.value == "<=":
-            return int(self.children[0] <= self.children[1])
-        if self.value.value == "<":
-            return int(self.children[0] < self.children[1])
-        if self.value.value == ">":
-            return int(self.children[0] > self.children[1])
-        raise ValueError("Invalid BinOp value")
+
+        left = self.children[0].Evaluate(symbolTable)
+        right = self.children[1].Evaluate(symbolTable)
+
+        if self.value == "-":
+            return left - right 
+        if self.value == "+":
+            return left + right
+        if self.value == "*":
+            return left * right
+        if self.value == "/":
+            return left // right
+        if self.value == "||":
+            return int(left or right)
+        if self.value == "&&":
+            return int(left and right)
+        if self.value == "==":
+            return int(left == right)
+        if self.value == ">=":
+            return int(left >= right)
+        if self.value == "<=":
+            return int(left <= right)
+        if self.value == "<":
+            return int(left < right)
+        if self.value == ">":
+            return int(left > right)
 
 class UnOp(Node):
-    def __init__(self, children, value):
-        super().__init__(children, value)
-
-        if len(children) != 1:
-            raise ValueError("UnOp should contain one children")
-        return
     
     def Evaluate(self, symbolTable):
-        super().Evaluate(symbolTable)
-        if self.value.value == "-":
-            return -(self.children[0])
-        if self.value.value == "+":
-            return self.children[0]
-        if self.value.value == "!":
-            return not self.children[0]
-        if self.value.value == "=":
-            return self
+        child = self.children[0].Evaluate(symbolTable)
+
+        if self.value == "-":
+            return -child
+        if self.value == "+":
+            return +child
+        if self.value == "!":
+            return not child
         raise ValueError("Invalid UnOp value")
             
 class IntVal(Node):
-    def __init__(self, value):
-        super().__init__([], value)
     
     def Evaluate(self, symbolTable):
-        super().Evaluate(symbolTable)
-
-        if self.value.type == 'identifier':
-            self.value.value = symbolTable.getSymbol(self.value.value)
-            self.value.type = "postIdentifier"
-
-        if isinstance(self.value.value, int):
-            return self.value.value
-        else:
-            raise ValueError("IntVal value must be an integer")
+        return int(self.value)
         
-class NoOp(Node):
-    def __init__(self, value):
-        super().__init__([], value)
+class Identifier(Node):
 
     def Evaluate(self, symbolTable):
-        super().Evaluate(symbolTable)
+        return symbolTable.getSymbol(self.value)
 
-        return self.value.value
+      
+class NoOp(Node):
+    pass
 
 class Print(Node):
-    def __init__(self, children):
-        super().__init__(children, None)
 
-        if len(children) != 1:
-            raise ValueError("Print should contain one children")
-        return
-    
     def Evaluate(self, symbolTable):
-        super().Evaluate(symbolTable)
+        child = self.children[0].Evaluate(symbolTable)
 
-        print(self.children[0])
-        return
+        print(child)
     
 class Assignment(Node):
-    def __init__(self, children, value):
-        super().__init__(children, value)
-
-        if len(children) != 1:
-            raise ValueError("Assignment should contain one children")
-        return
     
     def Evaluate(self, symbolTable):
-        super().Evaluate(symbolTable)
-
-        symbolTable.setSymbol(IntVal(self.value.value), self.children[0])
-        return
+        symbolTable.setSymbol(self.children[0].value, self.children[1].Evaluate(symbolTable))
     
 class Conditional(Node):
-    def __init__(self, children):
-        super().__init__(children, None)
-
-        if len(children) not in [2,3]:
-            raise ValueError("conditional should contain two or three children")
-        return
-    
     def Evaluate(self, symbolTable):
         conditional = self.children[0].Evaluate(symbolTable)
 
@@ -144,28 +95,16 @@ class Conditional(Node):
 
 class WhileLoop(Node):
 
-    def __init__(self, children):
-        super().__init__(children, None)
-
-        if len(children) != 2:
-            raise ValueError("While should contain two children")
-        return
-    
     def Evaluate(self, symbolTable):
         conditional = self.children[0].Evaluate(symbolTable)
         while conditional:
             self.children[1].Evaluate(symbolTable)
             conditional = self.children[0].Evaluate(symbolTable)
-        return
     
 class Input(Node):
-
-    def __init__(self, value=""):
-        super().__init__([], value)
-        return
     
     def Evaluate(self, symbolTable):
-        return int(input(self.value))
+        return int(input())
 
 
     
@@ -173,7 +112,7 @@ class Input(Node):
 
     
 
-    
+
 
 
     

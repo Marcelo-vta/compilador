@@ -7,30 +7,30 @@ from Code import Code
 if __name__ == "__main__":
     # input = sys.argv[1]
     
-    input = """
-        {
-            var i: i32;
-            var n: i32;
-            var f: i32 = 1;
-            n = reader();
-            i = 2;
-            while (i < n + 1) {
-            f = f * i;
-            i = i + 1;
-            }
-            print(f);
-        }
-    """
+    # input = """
+    #     {
+    #         var i: i32;
+    #         var n: i32;
+    #         var f: i32 = 1;
+    #         n = reader();
+    #         i = 2;
+    #         while (i < n + 1) {
+    #         f = f * i;
+    #         i = i + 1;
+    #         }
+    #         print(f);
+    #     }
+    # """
 
-    # filename = sys.argv[1]
+    filename = sys.argv[1]
 
-    # try:
-    #     with open(filename, 'r', encoding='utf-8') as file:
-    #         input = file.read()
-    # except FileNotFoundError:
-    #     print(f"Erro: Arquivo '{filename}' não encontrado.")
-    # except Exception as e:
-    #     print(f"Erro ao abrir o arquivo: {e}")
+    try:
+        with open(filename, 'r', encoding='utf-8') as file:
+            input = file.read()
+    except FileNotFoundError:
+        print(f"Erro: Arquivo '{filename}' não encontrado.")
+    except Exception as e:
+        print(f"Erro ao abrir o arquivo: {e}")
 
     parser = Parser()
     mainBlock = parser.run(input)

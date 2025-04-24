@@ -87,7 +87,7 @@ class BinOp(Node):
         elif self.value == "+":
             code.append("add eax, ecx ;")
         elif self.value == "*":
-            code.append("imul eax, ecx ;")
+            code.append("imul ecx ;")
         elif self.value == "/":
             code.append("cqo")
             code.append("idiv ecx ;")          

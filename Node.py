@@ -92,20 +92,26 @@ class BinOp(Node):
             code.append("cqo")
             code.append("idiv ecx ;")          
         elif self.value == "||":
-            code.append("cmp eax, 0 ;")
-            code.append("setne al ;")
-            code.append("cmp ecx, 0 ;")
-            code.append("setne cl ;")
-            code.append("or al, cl ;")
-            code.append("movzx eax, al ;")
+            code.append("cmp eax, 0")
+            code.append("mov eax, 0")
+            code.append("mov edx, 1")
+            code.append("cmovne eax, edx")
+            code.append("cmp ecx, 0")
+            code.append("mov ecx, 0")
+            code.append("mov edx, 1")
+            code.append("cmovne ecx, edx")
+            code.append("or eax, ecx")
 
         elif self.value == "&&":
-            code.append("cmp eax, 0 ;")
-            code.append("setne al ;")
-            code.append("cmp ecx, 0 ;")
-            code.append("setne cl ;")
-            code.append("and al, cl ;")
-            code.append("movzx eax, al ;")
+            code.append("cmp eax, 0")
+            code.append("mov eax, 0")
+            code.append("mov edx, 1")
+            code.append("cmovne eax, edx") 
+            code.append("cmp ecx, 0")
+            code.append("mov ecx, 0")
+            code.append("mov edx, 1")
+            code.append("cmovne ecx, edx")
+            code.append("and eax, ecx")
         
 
         elif self.value == "==":

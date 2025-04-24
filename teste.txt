@@ -1,0 +1,34 @@
+sub ESP, 4 ;
+mov eax, 2 ;
+mov [EBP-4], eax ;
+mov eax, 3 ;
+push eax ;
+mov eax, [EBP-4] ;
+pop ecx ;
+cmp eax, ecx ;
+mov ecx, 1 ;
+mov ecx, 0 ;
+cmovg eax, ecx ;
+cmp eax, 0
+je else_1
+mov eax, 2 ;
+push eax ;
+mov eax, 2 ;
+pop ecx ;
+add eax, ecx ;
+push eax ;
+push format_out ;
+call printf ;
+add esp, 8 ;
+jmp exit_1
+else_1
+mov eax, 3 ;
+push eax ;
+mov eax, 3 ;
+pop ecx ;
+add eax, ecx ;
+push eax ;
+push format_out ;
+call printf ;
+add esp, 8 ;
+exit_1

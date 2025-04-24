@@ -46,6 +46,7 @@ if __name__ == "__main__":
 
     symbolTable = SymbolTable()
     code = Code()
+    
 
     # mainBlock.Evaluate(symbolTable)
     mainBlock.Generate(symbolTable, code)

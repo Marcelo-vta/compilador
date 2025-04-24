@@ -4,14 +4,14 @@ class Node():
 
     id = 0
 
-    def generate_id(self):
-        self.id += 1
-        return self.id
+    def generate_id():
+        Node.id += 1
+        return Node.id
 
     def __init__(self, children, value):
         self.children = children
         self.value = value
-        self.id = self.generate_id()
+        self.id = Node.generate_id()
     
     def Evaluate(self, symbolTable):
         pass
@@ -303,10 +303,10 @@ class Conditional(Node):
         code.append(f"jmp exit_{self.id}")
         
         if len(self.children) == 3:
-            code.append(f"else_{self.id}")
+            code.append(f"else_{self.id}:")
             self.children[2].Generate(symbolTable, code)
         
-        code.append(f"exit_{self.id}")
+        code.append(f"exit_{self.id}:")
 
 
 class WhileLoop(Node):
@@ -321,7 +321,7 @@ class WhileLoop(Node):
             conditional = self.children[0].Evaluate(symbolTable)
 
     def Generate(self, symbolTable, code):
-        code.append(f"loop_{self.id}")
+        code.append(f"loop_{self.id}:")
 
         self.children[0].Generate(symbolTable, code)
 
@@ -331,7 +331,7 @@ class WhileLoop(Node):
         self.children[1].Generate(symbolTable, code)
 
         code.append(f"jmp loop_{self.id}")
-        code.append(f"exit_{self.id}")
+        code.append(f"exit_{self.id}:")
 
 
     

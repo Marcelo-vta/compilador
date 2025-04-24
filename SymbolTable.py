@@ -9,7 +9,7 @@ class SymbolTable():
             raise Exception("Value already declaired")
 
         self.shift += 4
-        self.symbols[key] = { "value": value, "address": f"[{"EBP" + str(-self.shift)}]" }
+        self.symbols[key] = { "value": value, "address": f"[{'EBP' + str(-self.shift)}]" }
 
         return
     

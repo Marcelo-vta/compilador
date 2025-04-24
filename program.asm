@@ -7,7 +7,7 @@ section .text
   extern printf ; usar _printf para Windows
   extern scanf ; usar _scanf para Windows
   ; extern _ExitProcess@4 ; usar para Windows
-  global _start ; início do programa
+  global _start ; inÃ­cio do programa
 
 _start:
   push ebp ; guarda o EBP
@@ -49,15 +49,15 @@ _start:
   or al, cl ;
   movzx eax, al ;
   cmp eax, 0
-  je exit_1
+  je exit_33
   mov eax, 1 ;
   push eax ;
   mov eax, 5 ;
   pop ecx ;
   sub eax, ecx ;
   mov [EBP-4], eax ;
-  jmp exit_1
-  exit_1
+  jmp exit_33
+  exit_33:
   mov eax, 3 ;
   push eax ;
   mov eax, [EBP-8] ;
@@ -83,15 +83,15 @@ _start:
   and al, cl ;
   movzx eax, al ;
   cmp eax, 0
-  je else_1
-  jmp exit_1
-  else_1
+  je else_48
+  jmp exit_48
+  else_48:
   mov eax, 3 ;
   mov [EBP-4], eax ;
-  exit_1
+  exit_48:
   mov eax, 3 ;
   mov [EBP-4], eax ;
-  loop_1
+  loop_70:
   mov eax, 5 ;
   push eax ;
   mov eax, [EBP-4] ;
@@ -101,7 +101,7 @@ _start:
   mov ecx, 0 ;
   cmovl eax, ecx ;
   cmp eax, 0
-  je exit_1
+  je exit_70
   mov eax, 1 ;
   push eax ;
   mov eax, [EBP-4] ;
@@ -114,8 +114,8 @@ _start:
   pop ecx ;
   add eax, ecx ;
   mov [EBP-4], eax ;
-  jmp loop_1
-  exit_1
+  jmp loop_70
+  exit_70:
   mov eax, [EBP-4] ;
   push eax ;
   push format_out ;

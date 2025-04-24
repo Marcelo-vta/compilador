@@ -154,7 +154,7 @@ class UnOp(Node):
     
     def Generate(self, symbolTable, code):
 
-        self.children[0].generate(symbolTable)
+        self.children[0].Generate(symbolTable, code)
 
         if self.value == "-":
             code.append("neg eax ;")   
@@ -166,7 +166,7 @@ class UnOp(Node):
             code.appeend("cmove eax, ecx")
         
         else:
-            raise ValueError(f"unsupported type {child.type} for operand {self.value}")
+            raise ValueError(f"unsupported type for operand {self.value}")
 
     
             

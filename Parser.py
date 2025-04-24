@@ -45,6 +45,15 @@ class Parser:
         elif token.type == "number":
             self.tokenizer.selectNext()
             node = IntVal([], token.value)
+
+        elif token.type == "bool":
+            self.tokenizer.selectNext()
+            node = BoolVal([], token.value)
+
+        elif token.type == "string":
+            self.tokenizer.selectNext()
+            node = StrVal([], token.value)
+
         else:
             raise Exception("Unexpected Token")
         
@@ -67,7 +76,7 @@ class Parser:
     def parseExpression(self):
         node = self.parseTerm()
 
-        while self.tokenizer.next.type == "operator" and self.tokenizer.next.value in ["+", "-"]:
+        while self.tokenizer.next.value in ["+", "-", "++"]:
             op = self.tokenizer.next
             self.tokenizer.selectNext()
             right = self.parseTerm()
@@ -75,6 +84,8 @@ class Parser:
             if op.value == "+":
                 node = BinOp([node, right], op.value)
             elif op.value == "-":
+                node = BinOp([node, right], op.value)
+            elif op.value =="++":
                 node = BinOp([node, right], op.value)
 
         return node
@@ -131,6 +142,30 @@ class Parser:
             else:
                 raise SyntaxError("Set identifier like IDENTIFIER = VALUE")
             
+        elif token.type == "setVar":
+            self.tokenizer.selectNext()
+
+            if self.tokenizer.next.type != "identifier":
+                raise SyntaxError("Unproper declairing of variable")
+            id = Identifier([], self.tokenizer.next.value)
+            self.tokenizer.selectNext()
+
+            if self.tokenizer.next.type != "atributte":
+                raise SyntaxError("Unproper declairing of variable")
+            self.tokenizer.selectNext()
+
+            if self.tokenizer.next.type != "type":
+                raise SyntaxError("Unknown type of variable")
+            type = self.tokenizer.next.value
+            self.tokenizer.selectNext()
+
+            if self.tokenizer.next.type == "equals":
+                self.tokenizer.selectNext()
+
+                node = VarDec([id, self.parseBoolExp()], type)
+            else:
+                node = VarDec([id], type)
+                  
         elif token.type == "print":
             self.tokenizer.selectNext()
 
@@ -144,7 +179,6 @@ class Parser:
                 raise SyntaxError("Unproper use of print, proper: print(<expression>)")
 
             self.tokenizer.selectNext()
-
 
         elif token.type == "if":
             self.tokenizer.selectNext()

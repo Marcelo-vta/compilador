@@ -44,7 +44,20 @@ class Tokenizer():
                 self.next = newToken
                 return
             
-        if c_char in ["+", "-", "*", "/"]:
+        if c_char == "+":
+            newToken.type = "operator"
+            newToken.value = c_char
+            self.next = newToken
+            self.position += 1
+            if self.source[self.position] == "+":
+                newToken.type = "concat"
+                newToken.value += c_char
+                self.next = newToken
+                self.position += 1
+                return
+            return  
+
+        if c_char in ["-", "*", "/"]:
             newToken.type = "operator"
             newToken.value = c_char
             self.next = newToken
@@ -86,6 +99,24 @@ class Tokenizer():
             self.position += 1
             return
         
+        if c_char == '"':
+            newToken.type = "string"
+            newToken.value = ""
+            self.position += 1
+            c_char = self.source[self.position]
+            while c_char != '"':
+                newToken.value += c_char
+
+                self.position += 1
+                c_char = self.source[self.position]
+
+                if self.position >= len(self.source):
+                    raise Exception("Unclosed string")
+                
+            self.next = newToken
+            self.position += 1
+
+            return
 
         if c_char.isalpha() or c_char == "_":
             newToken.type = "identifier"
@@ -93,9 +124,11 @@ class Tokenizer():
             while c_char.isalnum() or c_char == "_":
                 newToken.value += c_char
                 self.position += 1
+
                 if self.position >= len(self.source):
                     self.next = newToken
                     return
+                
                 c_char = self.source[self.position]
                 if not (c_char.isalnum() or c_char == '_'):
                     if newToken.value == "print":
@@ -110,8 +143,28 @@ class Tokenizer():
                         newToken.type = "setVar"
                     if newToken.value == "reader":
                         newToken.type = "read"
+
+                    if newToken.value == "i32":
+                        newToken.type = "type"
+                    if newToken.value == "str":
+                        newToken.type = "type"
+                    if newToken.value == "bool":
+                        newToken.type = "type"
+
+                    if newToken.value == "true":
+                        newToken.type = "bool"
+                    if newToken.value == "false":
+                        newToken.type = "bool"
+                    
                     self.next = newToken
                     return
+                
+        if c_char == ":":
+            newToken.type = "atributte"
+            newToken.value = c_char
+            self.next = newToken
+            self.position += 1
+            return
             
         if c_char == "=":
             newToken.type = "equals"
@@ -181,7 +234,7 @@ class Tokenizer():
         self.selectNext()
 
 
-# tkn = Tokenizer("read()")
-# for i in range(20):
-#     print(tkn.next.type)
+# tkn = Tokenizer('"teste tesudo" false true')
+# while tkn.next.type != "eof":
+#     print(tkn.next.type, " - ", tkn.next.value)
 #     tkn.selectNext()

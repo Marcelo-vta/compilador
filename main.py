@@ -45,8 +45,9 @@ if __name__ == "__main__":
 
     symbolTable = SymbolTable()
     code = Code()
+
     # mainBlock.Evaluate(symbolTable)
     mainBlock.Generate(symbolTable, code)
-    code.dump("program.asm")
+    code.dump("teste1.asm")
 
 

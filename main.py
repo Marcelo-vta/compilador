@@ -31,6 +31,7 @@ if __name__ == "__main__":
     # """
 
     filename = sys.argv[1]
+    dumpname = sys.argv[2]
 
     try:
         with open(filename, 'r', encoding='utf-8') as file:
@@ -48,6 +49,6 @@ if __name__ == "__main__":
 
     # mainBlock.Evaluate(symbolTable)
     mainBlock.Generate(symbolTable, code)
-    code.dump("teste1.asm")
+    code.dump(f"{dumpname}.asm")
 
 

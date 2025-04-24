@@ -54,7 +54,7 @@ class BinOp(Node):
             if left.type == "bool":
                 left.value = str(left.value).lower()
             if right.type == "bool":
-                right.value = str(left.value).lower()
+                right.value = str(right.value).lower()
             
             return Var("str", str(left.value) + str(right.value))
         
@@ -122,7 +122,8 @@ class VarDec(Node):
         if type != value.type:
             raise Exception("Unexpected type")
         
-
+        if symbolTable.containsSymbol(id):
+            raise Exception("Variable Already Declared")
         
         symbolTable.setSymbol(id, Var(type, value.value)) 
 
@@ -157,6 +158,8 @@ class Print(Node):
 class Conditional(Node):
     def Evaluate(self, symbolTable):
         conditional = self.children[0].Evaluate(symbolTable)
+        if conditional.type != "bool":
+            raise Exception("Incompatible types")
 
         if conditional.value:
             self.children[1].Evaluate(symbolTable)
@@ -167,6 +170,8 @@ class WhileLoop(Node):
 
     def Evaluate(self, symbolTable):
         conditional = self.children[0].Evaluate(symbolTable)
+        if conditional.type != "bool":
+            raise Exception("Incompatible types")
 
         while conditional.value:
             self.children[1].Evaluate(symbolTable)

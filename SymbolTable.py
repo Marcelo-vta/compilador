@@ -10,6 +10,9 @@ class SymbolTable():
     def setSymbolValue(self, key, value):
         self.symbols[key].value = value
     
+    def containsSymbol(self, key):
+        return key in self.symbols.keys()
+
     def printTable(self):
         print(self.symbols)
 

@@ -8,7 +8,7 @@ class SymbolTable():
         return
     
     def setSymbolValue(self, key, value):
-        self.symbols[key].setValue(value)
+        self.symbols[key].value = value
     
     def printTable(self):
         print(self.symbols)

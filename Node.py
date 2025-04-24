@@ -37,17 +37,18 @@ class BinOp(Node):
                 return Var("bool", left.value or right.value)
             if self.value == "&&":
                 return Var("bool", left.value and right.value)
-                 
-        if self.value == "==":
-            return Var("bool", left.value == right.value)
-        if self.value == ">=":
-            return Var("bool", left.value >= right.value)
-        if self.value == "<=":
-            return Var("bool", left.value <= right.value)
-        if self.value == "<":
-            return Var("bool", left.value < right.value)
-        if self.value == ">":
-            return Var("bool", left.value > right.value)
+        
+        if left.type == right.type:
+            if self.value == "==":
+                return Var("bool", left.value == right.value)
+            if self.value == ">=":
+                return Var("bool", left.value >= right.value)
+            if self.value == "<=":
+                return Var("bool", left.value <= right.value)
+            if self.value == "<":
+                return Var("bool", left.value < right.value)
+            if self.value == ">":
+                return Var("bool", left.value > right.value)
         
         if self.value == "++":
             if left.type == "bool":
@@ -73,7 +74,7 @@ class UnOp(Node):
             if self.value == "+":
                 return Var("i32", +child.value)
         
-        if child.value == "bool":        
+        if child.type == "bool":        
             if self.value == "!":
                 return Var("bool", not child.value)
         
@@ -112,14 +113,16 @@ class VarDec(Node):
             value = self.children[1].Evaluate(symbolTable)
         else:
             if type == "i32":
-                value = 0
+                value = Var("i32", 0)
             if type == "str":
-                value = ""
+                value = Var("str", "")
             if type == "bool":
-                value = False
+                value = Var("bool", False)
 
         if type != value.type:
             raise Exception("Unexpected type")
+        
+
         
         symbolTable.setSymbol(id, Var(type, value.value)) 
 
@@ -134,7 +137,7 @@ class Assignment(Node):
         except:
             raise Exception(f"Variable {id} not declaired")
 
-        symbolTable.setSymbolValue(id, value)
+        symbolTable.setSymbolValue(id, value.value)
 
       
 class NoOp(Node):
@@ -144,6 +147,9 @@ class Print(Node):
 
     def Evaluate(self, symbolTable):
         child = self.children[0].Evaluate(symbolTable)
+
+        if child.type == "bool":
+            child.value = str(child.value).lower()
 
         print(child.value)
     
@@ -169,7 +175,7 @@ class WhileLoop(Node):
 class Input(Node):
     
     def Evaluate(self, symbolTable):
-        return int(input())
+        return Var("i32", int(input()))
 
 
     

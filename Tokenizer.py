@@ -133,6 +133,9 @@ class Tokenizer():
                 if not (c_char.isalnum() or c_char == '_'):
                     if newToken.value == "print":
                         newToken.type = "print"
+                    if newToken.value == "printf":
+                        newToken.type = "print"
+                        
                     if newToken.value == "if":
                         newToken.type = "if"
                     if newToken.value == "else":

@@ -22,7 +22,8 @@ if __name__ == "__main__":
     #     }
     # """
 
-    filename = sys.argv[1]
+    # filename = sys.argv[1]
+    filename = "teste1.zig"
 
     try:
         with open(filename, 'r', encoding='utf-8') as file:
@@ -41,6 +42,6 @@ if __name__ == "__main__":
 
     # mainBlock.Evaluate(symbolTable)
     mainBlock.Generate(symbolTable, code)
-    code.dump(f"teste1.asm")
+    code.dump(f"{filename[0:-4]}.asm")
 
 

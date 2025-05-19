@@ -75,70 +75,70 @@ class BinOp(Node):
         raise Exception(f"unsupported type {left.type} or {right.type} for operand {self.value}")
     
     def Generate(self, symbolTable, code):
-        self.children[1].Generate(symbolTable, code)
+        self.children[0].Generate(symbolTable, code)
         code.append(
             "push eax ;"
         )
-        self.children[0].Generate(symbolTable, code)
-        code.append("pop ecx ;")
+        self.children[1].Generate(symbolTable, code)
+        code.append("mov ecx, eax ;")
+        code.append("pop eax ;")
 
         if self.value == "-":
             code.append("sub eax, ecx ;")
+
         elif self.value == "+":
             code.append("add eax, ecx ;")
+
         elif self.value == "*":
             code.append("imul ecx ;")
+
         elif self.value == "/":
             code.append("cqo")
-            code.append("idiv ecx ;")          
+            code.append("idiv ecx ;")
+
         elif self.value == "||":
-            code.append("cmp eax, 0")
-            code.append("mov eax, 0")
-            code.append("mov edx, 1")
-            code.append("cmovne eax, edx")
-            code.append("cmp ecx, 0")
-            code.append("mov ecx, 0")
-            code.append("mov edx, 1")
-            code.append("cmovne ecx, edx")
-            code.append("or eax, ecx")
+            code.append("cmp eax, 0 ;")
+            code.append("mov eax, 0 ;")
+            code.append("mov edx, 1 ;")
+            code.append("cmovne eax, edx ;")
+            code.append("cmp ecx, 0 ;")
+            code.append("mov ecx, 0 ;")
+            code.append("mov edx, 1 ;")
+            code.append("cmovne ecx, edx ;")
+            code.append("or eax, ecx ;")
 
         elif self.value == "&&":
-            code.append("cmp eax, 0")
-            code.append("mov eax, 0")
-            code.append("mov edx, 1")
-            code.append("cmovne eax, edx") 
-            code.append("cmp ecx, 0")
-            code.append("mov ecx, 0")
-            code.append("mov edx, 1")
-            code.append("cmovne ecx, edx")
-            code.append("and eax, ecx")
-        
-
-        elif self.value == "==":
-            code.append("cmp eax, ecx ;")
-            code.append("mov ecx, 1 ;")
+            code.append("cmp eax, 0 ;")
+            code.append("mov eax, 0 ;")
+            code.append("mov edx, 1 ;")
+            code.append("cmovne eax, edx ;") 
+            code.append("cmp ecx, 0 ;")
             code.append("mov ecx, 0 ;")
-            code.append("cmove eax, ecx ;")
+            code.append("mov edx, 1 ;")
+            code.append("cmovne ecx, edx ;")
+            code.append("and eax, ecx ;")
+        
+        elif self.value == "==":    
+            code.append("cmp eax, ecx ;")
+            code.append("mov eax, 0 ;")
+            code.append("mov edx, 1 ;")
+            code.append("cmove eax, edx ;")
 
         elif self.value == "<":
             code.append("cmp eax, ecx ;")
-            code.append("mov ecx, 1 ;")
-            code.append("mov ecx, 0 ;")
-            code.append("cmovl eax, ecx ;")
+            code.append("mov eax, 0 ;")
+            code.append("mov edx, 1 ;")
+            code.append("cmovl eax, edx ;")
             
         elif self.value == ">":
             code.append("cmp eax, ecx ;")
-            code.append("mov ecx, 1 ;")
-            code.append("mov ecx, 0 ;")
-            code.append("cmovg eax, ecx ;")
+            code.append("mov eax, 0 ;")
+            code.append("mov edx, 1 ;")
+            code.append("cmovg eax, edx ;")
             
         
         else:
             raise Exception(f"unsupported type")
-
-
-        
-        
 
 
 class UnOp(Node):
@@ -166,10 +166,10 @@ class UnOp(Node):
             code.append("neg eax ;")   
 
         elif self.value == "!":
-            code.appeend("cmp eax, 0")
-            code.appeend("mov eax, 0")
-            code.appeend("mov ecx, 1")
-            code.appeend("cmove eax, ecx")
+            code.append("cmp eax, 0 ;")
+            code.append("mov eax, 0 ;")
+            code.append("mov ecx, 1 ;")
+            code.append("cmove eax, ecx ;")
         
         else:
             raise ValueError(f"unsupported type for operand {self.value}")
@@ -331,12 +331,12 @@ class WhileLoop(Node):
 
         self.children[0].Generate(symbolTable, code)
 
-        code.append("cmp eax, 0")
-        code.append(f"je exit_{self.id}")
+        code.append("cmp eax, 0 ;")
+        code.append(f"je exit_{self.id} ;")
 
         self.children[1].Generate(symbolTable, code)
 
-        code.append(f"jmp loop_{self.id}")
+        code.append(f"jmp loop_{self.id} ;")
         code.append(f"exit_{self.id}:")
 
 

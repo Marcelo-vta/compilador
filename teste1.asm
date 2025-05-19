@@ -7,7 +7,7 @@ section .text
   extern printf ; usar _printf para Windows
   extern scanf ; usar _scanf para Windows
   ; extern _ExitProcess@4 ; usar para Windows
-  global _start ; inÃ­cio do programa
+  global _start ; início do programa
 
 _start:
   push ebp ; guarda o EBP
@@ -15,23 +15,90 @@ _start:
 
   sub ESP, 4 ;
   sub ESP, 4 ;
-  sub ESP, 4 ;
   mov eax, 1 ;
-  mov [EBP-12], eax ;
-  push scan_int ;
-  push format_in ;
-  call scanf ;
-  add esp, 8 ;
-  mov eax, dword [scan_int] ;
-  mov [EBP-8], eax ;
-  mov eax, 2 ;
+  neg eax ;
+  push eax ;
+  mov eax, 3 ;
+  pop ecx ;
+  add eax, ecx ;
   mov [EBP-4], eax ;
-  loop_38:
+  mov eax, [EBP-4] ;
+  mov [EBP-8], eax ;
+  mov eax, 5 ;
+  push eax ;
+  mov eax, [EBP-4] ;
+  pop ecx ;
+  cmp eax, ecx ;
+  mov ecx, 1 ;
+  mov ecx, 0 ;
+  cmovl eax, ecx ;
+  push eax ;
   mov eax, 1 ;
+  push eax ;
+  mov eax, [EBP-4] ;
+  pop ecx ;
+  cmp eax, ecx ;
+  mov ecx, 1 ;
+  mov ecx, 0 ;
+  cmovg eax, ecx ;
+  pop ecx ;
+  cmp eax, 0
+  mov eax, 0
+  mov edx, 1
+  cmovne eax, edx
+  cmp ecx, 0
+  mov ecx, 0
+  mov edx, 1
+  cmovne ecx, edx
+  or eax, ecx
+  cmp eax, 0
+  je exit_33
+  mov eax, 1 ;
+  push eax ;
+  mov eax, 5 ;
+  pop ecx ;
+  sub eax, ecx ;
+  mov [EBP-4], eax ;
+  jmp exit_33
+  exit_33:
+  mov eax, 3 ;
   push eax ;
   mov eax, [EBP-8] ;
   pop ecx ;
-  add eax, ecx ;
+  cmp eax, ecx ;
+  mov ecx, 1 ;
+  mov ecx, 0 ;
+  cmove eax, ecx ;
+  push eax ;
+  mov eax, 3 ;
+  push eax ;
+  mov eax, [EBP-4] ;
+  pop ecx ;
+  cmp eax, ecx ;
+  mov ecx, 1 ;
+  mov ecx, 0 ;
+  cmove eax, ecx ;
+  pop ecx ;
+  cmp eax, 0
+  mov eax, 0
+  mov edx, 1
+  cmovne eax, edx
+  cmp ecx, 0
+  mov ecx, 0
+  mov edx, 1
+  cmovne ecx, edx
+  and eax, ecx
+  cmp eax, 0
+  je else_48
+  jmp exit_48
+  else_48:
+  mov eax, 3 ;
+  mov [EBP-4], eax ;
+  exit_48:
+  mov eax, 3 ;
+  mov [EBP-4], eax ;
+  loop_70:
+  mov eax, 5 ;
   push eax ;
   mov eax, [EBP-4] ;
   pop ecx ;
@@ -40,22 +107,22 @@ _start:
   mov ecx, 0 ;
   cmovl eax, ecx ;
   cmp eax, 0
-  je exit_38
-  mov eax, [EBP-4] ;
+  je exit_70
+  mov eax, 1 ;
   push eax ;
-  mov eax, [EBP-12] ;
+  mov eax, [EBP-4] ;
   pop ecx ;
-  imul ecx ;
-  mov [EBP-12], eax ;
+  sub eax, ecx ;
+  mov [EBP-8], eax ;
   mov eax, 1 ;
   push eax ;
   mov eax, [EBP-4] ;
   pop ecx ;
   add eax, ecx ;
   mov [EBP-4], eax ;
-  jmp loop_38
-  exit_38:
-  mov eax, [EBP-12] ;
+  jmp loop_70
+  exit_70:
+  mov eax, [EBP-4] ;
   push eax ;
   push format_out ;
   call printf ;

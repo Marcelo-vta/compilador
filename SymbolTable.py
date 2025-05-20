@@ -7,17 +7,15 @@ class SymbolTable():
         self.parent = parent
         self.symbols = {}
 
-    def setSymbol(self, key, value, node=None):
-        if node != None:
-            self.symbols[key] = node
-        else:
-            self.symbols[key] = value
+    def setSymbol(self, key, value):
+        self.symbols[key] = value
+
     
     def getParent(self):
         return self.parent
     
     def setSymbolValue(self, key, value):
-        self.symbols[key].value = value
+        self.symbols[key] = value
     
     def containsSymbol(self, key):
         return key in self.symbols.keys()

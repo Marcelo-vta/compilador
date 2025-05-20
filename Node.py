@@ -17,11 +17,11 @@ class Block(Node):
             if isinstance(child, Return):
                 return child.Evaluate(symbolTable)
             elif isinstance(child, Block):
-                child.Evaluate(SymbolTable(symbolTable))
+                ch = child.Evaluate(SymbolTable(symbolTable))
             else:
                 ch = child.Evaluate(symbolTable)
-                if ch != None:
-                    return ch
+            if ch:
+                return ch
         return None
     
 class BinOp(Node):
@@ -147,7 +147,7 @@ class Assignment(Node):
         except:
             raise Exception(f"Variable {id} not declaired")
 
-        symbolTable.setSymbolValue(id, value.value)
+        symbolTable.setSymbolValue(id, value)
 
       
 class NoOp(Node):

@@ -386,6 +386,9 @@ class Parser:
             self.tokenizer
             self.tokenizer.selectNext()
 
+            if self.tokenizer.next.type != "identifier":
+                raise SyntaxError("")
+
 
         if self.tokenizer.next.type != "closePrio":
             raise SyntaxError("")

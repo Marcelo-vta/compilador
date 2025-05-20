@@ -15,7 +15,19 @@ class SymbolTable():
         return self.parent
     
     def setSymbolValue(self, key, value):
-        self.symbols[key] = value
+        found = False
+        table = self
+        while True:
+            if key in table.symbols:
+                found = True
+                table.symbols[key] = value
+                break
+            if table.parent == None:
+                break
+            table = table.parent
+        
+        if not found:
+            self.symbols[key] = value
     
     def containsSymbol(self, key):
         return key in self.symbols.keys()

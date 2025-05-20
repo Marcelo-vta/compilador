@@ -208,7 +208,12 @@ class FuncCall(Node):
             arg.Evaluate(new_st)
 
         for i in range(len(self.children)):
+
             arg_val = self.children[i].Evaluate(symbolTable)
+
+            if func.children[1][i].value != arg_val.type:
+                raise Exception("Invalid argument type")
+            
             arg = list(new_st.symbols.keys())[i]
 
             new_st.setSymbol(arg, arg_val)           
@@ -216,9 +221,11 @@ class FuncCall(Node):
         # for i in range(len(self.children)):
         #     new_st.setSymbol(func.children[1][i].children[0].value, self.children[i].Evaluate(symbolTable))
 
-        return func.children[2].Evaluate(new_st)
-        if fn:
-            return fn
+        ch =  func.children[2].Evaluate(new_st)
+        if ch:
+            if ch.type != func.value:
+                raise Exception("Invalid return type")
+            return ch
 
 class Return(Node):
     def Evaluate(self, symbolTable):

@@ -40,7 +40,29 @@ class Parser:
             
         elif token.type == "identifier":
             self.tokenizer.selectNext()
-            node = Identifier([], token.value)
+            id = Identifier([], token.value)
+
+            if self.tokenizer.next.type == "openPrio":
+                self.tokenizer.selectNext()
+
+                fn_args = []
+
+                while True and self.tokenizer.next.type != "closePrio":
+
+                    fn_args.append(self.parseBoolExp())
+
+                    if self.tokenizer.next.type != "comma":
+                        break
+                    self.tokenizer.selectNext()
+
+                if self.tokenizer.next.type != "closePrio":
+                    raise SyntaxError("")
+                
+                self.tokenizer.selectNext()
+                
+                node = FuncCall(fn_args, id)
+            else:
+                node = id
 
         elif token.type == "number":
             self.tokenizer.selectNext()
@@ -139,6 +161,25 @@ class Parser:
             if self.tokenizer.next.type == "equals":
                 self.tokenizer.selectNext()
                 node = Assignment([id, self.parseBoolExp()], None)
+            elif self.tokenizer.next.type == "openPrio":
+
+                fn_args = []
+                while True and self.tokenizer.next.type != "closePrio":
+                    self.tokenizer.selectNext()
+
+                    fn_args.append(self.parseBoolExp)
+
+                    if self.tokenizer.next.type != "comma":
+                        break
+                    self.tokenizer.selectNext()
+
+                if self.tokenizer.next.type != "closePrio":
+                    raise SyntaxError("")
+                
+                node = FuncCall(fn_args, id)
+
+                self.tokenizer.selectNext()
+
             else:
                 raise SyntaxError("Set identifier like IDENTIFIER = VALUE")
             
@@ -227,9 +268,50 @@ class Parser:
 
             statementEnd = True
 
+        elif token.type == "return":
+            self.tokenizer.selectNext()
+
+            node = Return([self.parseBoolExp()], None)
+
         elif token.type == "endStatement":
             pass
-        
+
+        elif token.type == "openBlock":
+            node = self.parseBlock()
+
+        elif token.type == "setVar":
+            self.tokenizer.selectNext()
+
+            if self.tokenizer.next.type != "identifier":
+                raise SyntaxError("")
+            
+            var_name = Identifier([], self.tokenizer.next.value)
+
+            children = [var_name]
+
+            self.tokenizer.selectNext()
+
+            if self.tokenizer.next.type != "atributte":
+                raise SyntaxError("")
+            
+            self.tokenizer.selectNext()
+
+            if self.tokenizer.next.type != "type":
+                raise SyntaxError("")
+            
+            var_type = self.tokenizer.next.value
+            self.tokenizer.selectNext()
+            
+            if self.tokenizer.next.type == "equals":
+                self.tokenizer.selectNext()
+
+                children.append(self.parseBoolExp)
+
+            if self.tokenizer.next.type != "endStatement":
+                raise SyntaxError("")
+            
+            node = VarDec(children, var_type)
+
         else:
             print(self.tokenizer.next.type)
             print(self.tokenizer.position)
@@ -259,15 +341,109 @@ class Parser:
         self.tokenizer.selectNext()
 
         return Block(statements, None)
+    
+    def parseFuncDeclaration(self):
+        token = self.tokenizer.next
+
+        if token.type != "function":
+            raise SyntaxError("")
+        
+        self.tokenizer.selectNext()
+
+        if self.tokenizer.next.type != "identifier":
+            raise SyntaxError("")
+        
+        fn_name = self.tokenizer.next.value
+        self.tokenizer.selectNext()
+
+        if self.tokenizer.next.type != "openPrio":
+            raise SyntaxError("")
+        
+        self.tokenizer.selectNext()
+
+        fn_args = []
+        while True and self.tokenizer.next.type != "closePrio":
+            if self.tokenizer.next.type != "identifier":
+                raise SyntaxError("")
+        
+            arg_name = Identifier([], self.tokenizer.next.value)
+            self.tokenizer.selectNext()
+
+            if self.tokenizer.next.type != "atributte":
+                raise SyntaxError("")
+            
+            self.tokenizer.selectNext()
+
+            if self.tokenizer.next.type != "type":
+                raise SyntaxError("")
+            
+            fn_args.append(VarDec([arg_name], self.tokenizer.next.value))
+
+            self.tokenizer.selectNext()
+            if self.tokenizer.next.type != "comma":
+                break
+            self.tokenizer
+            self.tokenizer.selectNext()
+
+
+        if self.tokenizer.next.type != "closePrio":
+            raise SyntaxError("")
+        
+        self.tokenizer.selectNext()
+
+        if self.tokenizer.next.type != "type":
+            raise SyntaxError("")
+        
+        fn_type = self.tokenizer.next.value
+        self.tokenizer.selectNext()
+
+        children = [fn_name] + [fn_args] + [self.parseBlock()]
+
+        return(FuncDec(children, fn_type))
+
+    def parseProgram(self):
+        children = []
+        while self.tokenizer.next.type != "eof":
+            if self.tokenizer.next.type == "setVar":
+                self.tokenizer.selectNext()
+
+                if self.tokenizer.next.type != "identifier":
+                    raise SyntaxError("Unproper declairing of variable")
+                
+                id = Identifier([], self.tokenizer.next.value)
+                self.tokenizer.selectNext()
+
+                if self.tokenizer.next.type != "atributte":
+                    raise SyntaxError("Unproper declairing of variable")
+                self.tokenizer.selectNext()
+
+                if self.tokenizer.next.type != "type":
+                    raise SyntaxError("Unknown type of variable")
+                type = self.tokenizer.next.value
+                self.tokenizer.selectNext()
+
+                if self.tokenizer.next.type == "equals":
+                    self.tokenizer.selectNext()
+
+                    children.append(VarDec([id, self.parseBoolExp()], type))
+                else:
+                    children.append(VarDec([id], type))
+
+            elif self.tokenizer.next.type == "function":
+                children.append(self.parseFuncDeclaration())
+
+            else:
+                raise SyntaxError("deuruim ;-;")
+
+        children.append(FuncCall([], Var("str", "main")))
+
+        return Block(children, None)
+
 
     def run(self, code):
         self.tokenizer = Tokenizer(code)
         self.tokenizer.selectNext()
 
-        mainBlock = self.parseBlock()
-        
+        program = self.parseProgram()
 
-        if self.tokenizer.next.type != "eof":
-            raise Exception("Unexpected end of input")
-
-        return mainBlock
+        return program

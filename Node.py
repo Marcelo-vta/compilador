@@ -1,33 +1,26 @@
 from var import Var
+from SymbolTable import SymbolTable
 
 class Node():
-
-    id = 0
-
-    def generate_id():
-        Node.id += 1
-        return Node.id
-
     def __init__(self, children, value):
         self.children = children
         self.value = value
-        self.id = Node.generate_id()
+        return
     
     def Evaluate(self, symbolTable):
-        pass
-
-    def Generate(self, symbolTable, code):
         pass
 
         
 class Block(Node):
     def Evaluate(self, symbolTable):
         for child in self.children:
-            child.Evaluate(symbolTable)
-
-    def Generate(self, symbolTable, code):
-        for child in self.children:
-            child.Generate(symbolTable, code)
+            st = symbolTable
+            if isinstance(child, Return):
+                return child.Evaluate(symbolTable)
+            if isinstance(child, Block):
+                st = SymbolTable(symbolTable)
+            child.Evaluate(st)
+        return None
     
 class BinOp(Node):
         
@@ -73,72 +66,8 @@ class BinOp(Node):
             return Var("str", str(left.value) + str(right.value))
         
         raise Exception(f"unsupported type {left.type} or {right.type} for operand {self.value}")
-    
-    def Generate(self, symbolTable, code):
-        self.children[0].Generate(symbolTable, code)
-        code.append(
-            "push eax ;"
-        )
-        self.children[1].Generate(symbolTable, code)
-        code.append("mov ecx, eax ;")
-        code.append("pop eax ;")
-
-        if self.value == "-":
-            code.append("sub eax, ecx ;")
-
-        elif self.value == "+":
-            code.append("add eax, ecx ;")
-
-        elif self.value == "*":
-            code.append("imul ecx ;")
-
-        elif self.value == "/":
-            code.append("cqo")
-            code.append("idiv ecx ;")
-
-        elif self.value == "||":
-            code.append("cmp eax, 0 ;")
-            code.append("mov eax, 0 ;")
-            code.append("mov edx, 1 ;")
-            code.append("cmovne eax, edx ;")
-            code.append("cmp ecx, 0 ;")
-            code.append("mov ecx, 0 ;")
-            code.append("mov edx, 1 ;")
-            code.append("cmovne ecx, edx ;")
-            code.append("or eax, ecx ;")
-
-        elif self.value == "&&":
-            code.append("cmp eax, 0 ;")
-            code.append("mov eax, 0 ;")
-            code.append("mov edx, 1 ;")
-            code.append("cmovne eax, edx ;") 
-            code.append("cmp ecx, 0 ;")
-            code.append("mov ecx, 0 ;")
-            code.append("mov edx, 1 ;")
-            code.append("cmovne ecx, edx ;")
-            code.append("and eax, ecx ;")
         
-        elif self.value == "==":    
-            code.append("cmp eax, ecx ;")
-            code.append("mov eax, 0 ;")
-            code.append("mov edx, 1 ;")
-            code.append("cmove eax, edx ;")
-
-        elif self.value == "<":
-            code.append("cmp eax, ecx ;")
-            code.append("mov eax, 0 ;")
-            code.append("mov edx, 1 ;")
-            code.append("cmovl eax, edx ;")
-            
-        elif self.value == ">":
-            code.append("cmp eax, ecx ;")
-            code.append("mov eax, 0 ;")
-            code.append("mov edx, 1 ;")
-            code.append("cmovg eax, edx ;")
-            
         
-        else:
-            raise Exception(f"unsupported type")
 
 
 class UnOp(Node):
@@ -158,31 +87,11 @@ class UnOp(Node):
         
         raise ValueError(f"unsupported type {child.type} for operand {self.value}")
     
-    def Generate(self, symbolTable, code):
-
-        self.children[0].Generate(symbolTable, code)
-
-        if self.value == "-":
-            code.append("neg eax ;")   
-
-        elif self.value == "!":
-            code.append("cmp eax, 0 ;")
-            code.append("mov eax, 0 ;")
-            code.append("mov ecx, 1 ;")
-            code.append("cmove eax, ecx ;")
-        
-        else:
-            raise ValueError(f"unsupported type for operand {self.value}")
-
-    
             
 class IntVal(Node):
     
     def Evaluate(self, symbolTable):
         return Var('i32' , int(self.value))
-    
-    def Generate(self,  symbolTable, code):
-        code.append(f"mov eax, {self.value} ;")
         
 class BoolVal(Node):
     
@@ -199,9 +108,6 @@ class Identifier(Node):
 
     def Evaluate(self, symbolTable):
         return symbolTable.getSymbol(self.value)
-    def Generate(self, symbolTable, code):
-        code.append(f"mov eax, {symbolTable.getShift(self.value)} ;")
-
     
 class VarDec(Node):
 
@@ -223,23 +129,10 @@ class VarDec(Node):
         if type != value.type:
             raise Exception("Unexpected type")
         
-        symbolTable.setSymbol(id, Var(type, value.value))
-
-    def Generate(self, symbolTable, code):
-
-        id = self.children[0].value
-        symbolTable.setSymbol(id)
-
-        code.append("sub ESP, 4 ;")
-
-        if len(self.children) > 1:
-            self.children[1].Generate(symbolTable, code)
-
-            code.append(f"mov {symbolTable.getShift(id)}, eax ;")
-
+        if symbolTable.containsSymbol(id):
+            raise Exception("Variable Already Declared")
         
-
-
+        symbolTable.setSymbol(id, Var(type, value.value)) 
 
 class Assignment(Node):
     
@@ -254,14 +147,6 @@ class Assignment(Node):
 
         symbolTable.setSymbolValue(id, value.value)
 
-    def Generate(self, symbolTable, code):
-
-        id = self.children[0].value
-        self.children[1].Generate(symbolTable, code)
-
-        code.append(f"mov {symbolTable.getShift(id)}, eax ;")
-        
-
       
 class NoOp(Node):
     pass
@@ -275,14 +160,6 @@ class Print(Node):
             child.value = str(child.value).lower()
 
         print(child.value)
-
-    def Generate(self, symbolTable, code):
-        self.children[0].Generate(symbolTable, code)
-
-        code.append("push eax ;")
-        code.append("push format_out ;")
-        code.append("call printf ;")
-        code.append("add esp, 8 ;")
     
     
 class Conditional(Node):
@@ -295,25 +172,6 @@ class Conditional(Node):
             self.children[1].Evaluate(symbolTable)
         elif len(self.children) == 3:
             self.children[2].Evaluate(symbolTable)
-    
-    def Generate(self, symbolTable, code):
-        self.children[0].Generate(symbolTable, code)
-
-        code.append("cmp eax, 0")
-        if len(self.children) == 3:
-            code.append(f"je else_{self.id}")
-        else:
-            code.append(f"je exit_{self.id}")
-        
-        self.children[1].Generate(symbolTable, code)
-        code.append(f"jmp exit_{self.id}")
-        
-        if len(self.children) == 3:
-            code.append(f"else_{self.id}:")
-            self.children[2].Generate(symbolTable, code)
-        
-        code.append(f"exit_{self.id}:")
-
 
 class WhileLoop(Node):
 
@@ -325,35 +183,34 @@ class WhileLoop(Node):
         while conditional.value:
             self.children[1].Evaluate(symbolTable)
             conditional = self.children[0].Evaluate(symbolTable)
-
-    def Generate(self, symbolTable, code):
-        code.append(f"loop_{self.id}:")
-
-        self.children[0].Generate(symbolTable, code)
-
-        code.append("cmp eax, 0 ;")
-        code.append(f"je exit_{self.id} ;")
-
-        self.children[1].Generate(symbolTable, code)
-
-        code.append(f"jmp loop_{self.id} ;")
-        code.append(f"exit_{self.id}:")
-
-
     
 class Input(Node):
     
     def Evaluate(self, symbolTable):
         return Var("i32", int(input()))
     
-    def Generate(self, symbolTable, code):
-        code.append("push scan_int ;")
-        code.append("push format_in ;")
-        code.append("call scanf ;")
-        code.append("add esp, 8 ;")
-        code.append("mov eax, dword [scan_int] ;")
+class FuncDec(Node):
+    def Evaluate(self, symbolTable):
+        key = self.children[0]
+        symbolTable.setSymbol(key, self)
 
+class FuncCall(Node):
+    def Evaluate(self, symbolTable):
+        func = symbolTable.getSymbol(self.value.value)
+        if len(func.children[1]) != len(self.children):
+            raise Exception("")
+        
+        new_st = SymbolTable(symbolTable)
+        for i in range(len(self.children)):
+            new_st.setSymbol(func.children[1][i].children[0].value, self.children[i].Evaluate(symbolTable))
 
+        fn = func.children[2].Evaluate(new_st)
+        if fn:
+            return fn
+
+class Return(Node):
+    def Evaluate(self, symbolTable):
+        return self.children[0].Evaluate(symbolTable)
     
 
 

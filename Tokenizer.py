@@ -153,11 +153,19 @@ class Tokenizer():
                         newToken.type = "type"
                     if newToken.value == "bool":
                         newToken.type = "type"
+                    if newToken.value == "void":
+                        newToken.type = "type"
 
                     if newToken.value == "true":
                         newToken.type = "bool"
                     if newToken.value == "false":
                         newToken.type = "bool"
+
+                    if newToken.value == "fn":
+                        newToken.type = "function"
+
+                    if newToken.value == "return":
+                        newToken.type = "return"
                     
                     self.next = newToken
                     return
@@ -184,6 +192,13 @@ class Tokenizer():
         
         if c_char == ";":
             newToken.type = "endStatement"
+            newToken.value = c_char
+            self.next = newToken
+            self.position += 1
+            return
+        
+        if c_char == ",":
+            newToken.type = "comma"
             newToken.value = c_char
             self.next = newToken
             self.position += 1
@@ -229,15 +244,13 @@ class Tokenizer():
                 newToken.value = "||"
                 self.next = newToken
                 self.position += 2
-                return
-        
-
+                return  
         
         self.position += 1        
         self.selectNext()
 
 
-# tkn = Tokenizer('"teste tesudo" false true')
+# tkn = Tokenizer(''' ''')
 # while tkn.next.type != "eof":
 #     print(tkn.next.type, " - ", tkn.next.value)
 #     tkn.selectNext()

@@ -2,28 +2,28 @@ import sys
 from Parser import Parser
 from utils import print_tree
 from SymbolTable import SymbolTable
-from Code import Code
 
 if __name__ == "__main__":
     # input = sys.argv[1]
     
     # input = """
-    #     {
-    #         var i: i32;
-    #         var n: i32;
-    #         var f: i32 = 1;
-    #         n = reader();
-    #         i = 2;
-    #         while (i < n + 1) {
-    #         f = f * i;
-    #         i = i + 1;
-    #         }
-    #         print(f);
+    #     fn soma(x: i32, y: i32) i32 {
+    #         var a: i32;
+    #         a = x + y;
+    #         print(a);
+    #         return a;
+    #     }
+    #     fn main() i32 {
+    #         var a: i32;
+    #         var b: i32;
+    #         a = 3;
+    #         b = soma(a, 4);
+    #         print(a);
+    #         print(b);
     #     }
     # """
 
-    # filename = sys.argv[1]
-    filename = "teste1.zig"
+    filename = sys.argv[1]
 
     try:
         with open(filename, 'r', encoding='utf-8') as file:
@@ -37,11 +37,7 @@ if __name__ == "__main__":
     mainBlock = parser.run(input)
 
     symbolTable = SymbolTable()
-    code = Code()
-
-
-    # mainBlock.Evaluate(symbolTable)
-    mainBlock.Generate(symbolTable, code)
-    code.dump(f"{filename[0:-4]}.asm")
+    print("deubom :)")
+    mainBlock.Evaluate(symbolTable)
 
 

@@ -14,12 +14,14 @@ class Node():
 class Block(Node):
     def Evaluate(self, symbolTable):
         for child in self.children:
-            st = symbolTable
             if isinstance(child, Return):
                 return child.Evaluate(symbolTable)
-            if isinstance(child, Block):
-                st = SymbolTable(symbolTable)
-            child.Evaluate(st)
+            elif isinstance(child, Block):
+                child.Evaluate(SymbolTable(symbolTable))
+            else:
+                ch = child.Evaluate(symbolTable)
+                if ch != None:
+                    return ch
         return None
     
 class BinOp(Node):
@@ -169,9 +171,9 @@ class Conditional(Node):
             raise Exception("Incompatible types")
 
         if conditional.value:
-            self.children[1].Evaluate(symbolTable)
+            return self.children[1].Evaluate(symbolTable)
         elif len(self.children) == 3:
-            self.children[2].Evaluate(symbolTable)
+            return self.children[2].Evaluate(symbolTable)
 
 class WhileLoop(Node):
 
@@ -201,10 +203,20 @@ class FuncCall(Node):
             raise Exception("")
         
         new_st = SymbolTable(symbolTable)
-        for i in range(len(self.children)):
-            new_st.setSymbol(func.children[1][i].children[0].value, self.children[i].Evaluate(symbolTable))
 
-        fn = func.children[2].Evaluate(new_st)
+        for arg in func.children[1]:
+            arg.Evaluate(new_st)
+
+        for i in range(len(self.children)):
+            arg_val = self.children[i].Evaluate(symbolTable)
+            arg = list(new_st.symbols.keys())[i]
+
+            new_st.setSymbol(arg, arg_val)           
+        # new_st.setSymbol(arg.value, self.children[arg.index].Evaluate(symbolTable))
+        # for i in range(len(self.children)):
+        #     new_st.setSymbol(func.children[1][i].children[0].value, self.children[i].Evaluate(symbolTable))
+
+        return func.children[2].Evaluate(new_st)
         if fn:
             return fn
 

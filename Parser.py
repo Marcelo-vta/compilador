@@ -167,7 +167,7 @@ class Parser:
                 while True and self.tokenizer.next.type != "closePrio":
                     self.tokenizer.selectNext()
 
-                    fn_args.append(self.parseBoolExp)
+                    fn_args.append(self.parseBoolExp())
 
                     if self.tokenizer.next.type != "comma":
                         break
@@ -278,6 +278,7 @@ class Parser:
 
         elif token.type == "openBlock":
             node = self.parseBlock()
+            statementEnd = True
 
         elif token.type == "setVar":
             self.tokenizer.selectNext()
@@ -428,6 +429,8 @@ class Parser:
                     children.append(VarDec([id, self.parseBoolExp()], type))
                 else:
                     children.append(VarDec([id], type))
+
+                self.tokenizer.selectNext()
 
             elif self.tokenizer.next.type == "function":
                 children.append(self.parseFuncDeclaration())
